@@ -67,6 +67,11 @@ class Record
   def add_transaction(from, to, amount, comment=nil)
     amount = amount.to_i
 
+    if amount < 0
+      from, to = to, from
+      amount = 0 - amount
+    end
+
     unless valid_transfer?(from, to, amount)
       STDERR.puts("Invalid transfer!")
       return nil
