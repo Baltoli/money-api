@@ -37,7 +37,19 @@ class MoneyApp < Sinatra::Base
       return "Missing request keys"
     end
 
-    @record.add_transaction(payload['from'], payload['to'], payload['amount'], payload['comment'])
+    t = @record.add_transaction(
+      payload['from'], 
+      payload['to'], 
+      payload['amount'], 
+      payload['comment']
+    )
+
+    unless t
+      status 400
+      return "Invalid transaction"
+    end
+
+    status 200
   end
 
   post '/save' do
