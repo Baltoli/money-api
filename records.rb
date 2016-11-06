@@ -6,6 +6,16 @@ class Transaction
     @comment = comment
   end
 
+  def to_json(*a)
+    h = {
+      from: from,
+      to: to,
+      amount: amount
+    }
+    h[:comment] = comment unless comment.nil?
+    h.to_json(*a)
+  end
+
   attr_reader :from, :to, :amount, :comment
 end
 
@@ -88,7 +98,7 @@ class Record
         @entries[from][to] = 0 - net
         @entries[to].delete(from)
       elsif net > 0
-        @entries[to][from] -= net
+        @entries[to][from] = net
       else
         @entries[to].delete(from)
       end
