@@ -1,5 +1,10 @@
-require 'sinatra'
+require 'sinatra/base'
 
-get '/' do
-  'Hello, World!'
+require './records'
+
+class MoneyApp < Sinatra::Base
+  get '/' do
+    bruce = Person.new('Bruce')
+    bruce.name
+  end
 end
