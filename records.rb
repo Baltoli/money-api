@@ -11,7 +11,10 @@ end
 
 class Record
   def initialize(file_name)
-    File.open(file_name, "r") do |file|
+    @file_name = file_name
+    @new_transactions = []
+
+    File.open(@file_name, "r") do |file|
       names = file.gets.strip.split(" ")
       @entries = Hash[names.map { |name| [name, {}] }]
       @transactions = []
@@ -23,10 +26,11 @@ class Record
           next
         end
 
-        add_entry(*entry)
         add_transaction(*entry)
       end
     end
+
+    @new_transactions = []
   end
   attr_reader :transactions
 
@@ -34,17 +38,43 @@ class Record
     @entries.keys
   end
 
-  def write
+  def write!
+    File.open(@file_name, "a") do |file|
+      @new_transactions.each do |t|
+        file.write("#{t.from}:#{t.to}:#{t.amount}")
+        file.write(":#{t.comment}") unless t.comment.nil?
+        file.write("\n")
+      end
+    end
+
+    @new_transactions = []
   end
 
-  def active_debts
-    []
+  def active_entries
+    @entries.select { |_, v| v != {} }
   end
 
-  def add_entry(from, to, amount, comment=nil)
+  def add_transaction(from, to, amount, comment=nil)
+    amount = amount.to_i
+
+    unless valid_transfer?(from, to, amount)
+      STDERR.puts("Invalid transfer!")
+      return nil
+    end
+
+    add_entry(from, to, amount)
+
+    t = Transaction.new(from, to, amount, comment)
+    @transactions << t
+    @new_transactions << t
+    t
+  end
+
+  private
+
+  def add_entry(from, to, amount)
     previous_from = @entries[from][to]
     previous_to = @entries[to][from]
-    amount = amount.to_i
     
     if previous_from.nil? && previous_to.nil?
       # Neither owes the other any money at all
@@ -69,7 +99,10 @@ class Record
     end
   end
 
-  def add_transaction(from, to, amount, comment=nil)
-    @transactions << Transaction.new(from, to, amount, comment)
+  def valid_transfer?(from, to, amount)
+    @entries.keys.include?(from) && 
+      @entries.keys.include?(to) && 
+      amount.is_a?(Integer) &&
+      from != to
   end
 end
