@@ -40,4 +40,8 @@ class MoneyApp < Sinatra::Base
     @record.add_transaction(payload['from'], payload['to'], payload['amount'], payload['comment'])
     puts @record.active_entries
   end
+
+  post '/save' do
+    @record.write!
+  end
 end
