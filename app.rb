@@ -1,14 +1,21 @@
 require 'sinatra/base'
+require 'sinatra/cross_origin'
 require 'json'
 
 require './records'
 
 class MoneyApp < Sinatra::Base
+  register Sinatra::CrossOrigin
+
   def initialize
     super
     @record = Record.new('moneyfile')
   end
 
+  configure do
+    enable :cross_origin
+  end
+  
   before do
     content_type 'application/json'
   end
