@@ -20,6 +20,14 @@ class MoneyApp < Sinatra::Base
     content_type 'application/json'
   end
 
+  options "*" do
+    response.headers["Allow"] = "HEAD,GET,PUT,POST,DELETE,OPTIONS"
+
+    response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
+
+    200
+  end
+
   get '/people' do
     {
       people: @record.people
