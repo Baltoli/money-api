@@ -20,6 +20,11 @@ class MoneyApp < Sinatra::Base
     content_type 'application/json'
   end
 
+  get '/' do
+    content_type 'text/html'
+    send_file File.join(settings.public_folder, 'index.html')
+  end
+
   options "*" do
     response.headers["Allow"] = "HEAD,GET,PUT,POST,DELETE,OPTIONS"
 
